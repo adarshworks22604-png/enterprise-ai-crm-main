@@ -1,0 +1,101 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: crm-platform
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:crm_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:MyNewPassword123!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: CrmHikariPool
+      maximum-pool-size: 50
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 5000ms
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:my-dev-secret-key-change-this-later-12345}
+    issuer: cs-crm-2026
+    expiration-ms: 86400000
+
+  bootstrap:
+    admin:
+      username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
+      email: ${BOOTSTRAP_ADMIN_EMAIL:admin@crm.local}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:Admin@123}
+
+crm:
+  delivery:
+    provider: ${CRM_DELIVERY_PROVIDER:simulated}
+  async:
+    stream-key: ${CRM_STREAM_KEY:crm:campaign:deliveries:stream}
+    consumer-group: ${CRM_CONSUMER_GROUP:crm:delivery:workers}
+    batch-size: 20
+    poll-timeout-ms: 2000
+    worker-threads: 4
+    max-stream-length: ${CRM_MAX_STREAM_LENGTH:10000}
+    outbox-poll-interval-ms: ${CRM_OUTBOX_POLL_INTERVAL_MS:2000}
+    pel-recovery-interval-ms: ${CRM_PEL_RECOVERY_INTERVAL_MS:15000}
+  pagination:
+    default-size: 20
+    max-size: 100
+  upload:
+    max-response-errors: 100
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY}
+      model: ${GEMINI_MODEL:gemini-1.5-flash}
+      connect-timeout-ms: ${GEMINI_CONNECT_TIMEOUT_MS:3000}
+      read-timeout-ms: ${GEMINI_READ_TIMEOUT_MS:7000}
+
+smtp:
+  host: ${SMTP_HOST:localhost}
+  port: ${SMTP_PORT:1025}
+  username: ${SMTP_USERNAME:}
+  password: ${SMTP_PASSWORD:}
+  from: ${SMTP_FROM:noreply@crm.internal}
+  timeout-ms: ${SMTP_TIMEOUT_MS:5000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
